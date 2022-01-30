@@ -1,9 +1,15 @@
 import React from 'react'
+import { Sidebar } from './Sidebar';
+// import { NothingSelected } from './NothingSelected';
 
 export const JournalScreen = () => {
     return (
-        <div>
-            <h1>JournalScreen</h1>
+        <div className='journal__main-content'>
+            <Sidebar />
+
+            <main>
+                {/* <NothingSelected /> */}
+            </main>
         </div>
     );
 };

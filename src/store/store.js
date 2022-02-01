@@ -1,4 +1,5 @@
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { authReducer } from '../reducers/authReducer';
 
@@ -9,5 +10,7 @@ const reducers = combineReducers({
 
 export const store = createStore(
     reducers,
-    composeWithDevTools(),
+    composeWithDevTools(
+        applyMiddleware(thunk)
+    ),
 );

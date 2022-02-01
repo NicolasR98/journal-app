@@ -1,3 +1,5 @@
+import { getAuth, signInWithPopup } from 'firebase/auth';
+import { googleAuthProvider } from '../firebase/firebaseConfig';
 import { types } from '../types/types'
 
 export const login = (uid, displayName) => ({
@@ -6,4 +8,26 @@ export const login = (uid, displayName) => ({
         uid,
         displayName
     }
-})
+});
+
+// To handle an async function, the helper must return another function
+export const startLoginEmailPassword = (email, password) => {
+    return (dispatch) => {
+        setTimeout(() => {
+            dispatch(login(123, 'nicolas'));
+        }, 3500);
+    };
+};
+
+export const startGoogleLogin = () => {
+    return (dispatch) => {
+        const auth = getAuth();
+        signInWithPopup(auth, googleAuthProvider)
+            .then(({ user }) => {
+                dispatch(
+                    login(user?.uid, user?.displayName)
+                );
+            })
+            .catch(e => console.log(e));
+    };
+};

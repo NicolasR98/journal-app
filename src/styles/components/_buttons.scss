@@ -29,7 +29,7 @@
         background-color: lighten($color: $primary, $amount: 20);
     }
     &:hover {
-        background-color: darken($color: $primary, $amount: 20);
+        background-color: darken($color: $primary, $amount: 10);
     }
 }
 

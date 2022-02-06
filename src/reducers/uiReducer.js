@@ -1,7 +1,7 @@
 import { types } from "../types/types";
 
 const initialState = {
-    loading: false,
+    isLoading: false,
     msgError: null,
 };
 
@@ -17,6 +17,18 @@ export const uiReducer = (state = initialState, action) => {
             return {
                 ...state,
                 msgError: null
+            };
+        
+        case types.uiStartLoading:
+            return {
+                ...state,
+                isLoading: true,
+            };
+        
+        case types.uiStopLoading:
+            return {
+                ...state,
+                isLoading: false,
             };
 
         default:

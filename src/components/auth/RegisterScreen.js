@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import isEmail from 'validator/lib/isEmail'
 import { startRegisterWithEmailPasswordName } from '../../actions/auth'
 
-import { removeError, setError } from '../../actions/ui'
+import { uiRemoveError, uiSetError } from '../../actions/ui'
 import { useForm } from '../../hooks/useForm'
 
 const initialState = {
@@ -18,7 +18,7 @@ const initialState = {
 
 export const RegisterScreen = () => {
     const dispatch = useDispatch();
-    const { msgError } = useSelector(state => state?.ui);
+    const { msgError, isLoading } = useSelector(state => state?.ui);
 
     const [formValues, handleInputChange] = useForm(initialState);
     const { name, email, password, passwordConfirm } = formValues;
@@ -32,16 +32,16 @@ export const RegisterScreen = () => {
 
     const isFormValid = () => {
         if (name.trim().length === 0) {
-            dispatch(setError('Name required'));
+            dispatch(uiSetError('Name required'));
             return false;
         } else if (!isEmail(email)) {
-            dispatch(setError('Email is not valid'));
+            dispatch(uiSetError('Email is not valid'));
             return false;
         } else if (password !== passwordConfirm || password.length < 5) {
-            dispatch(setError('Password should be at least 6 characters long'));
+            dispatch(uiSetError('Password should be at least 6 characters long'));
             return false;
         } else {
-            dispatch(removeError());
+            dispatch(uiRemoveError());
             return true;
         };
     };
@@ -102,6 +102,7 @@ export const RegisterScreen = () => {
                 <button
                     className="btn btn-block btn-primary mb-5"
                     type="submit"
+                    disabled={isLoading}
                 >
                     Register
                 </button>

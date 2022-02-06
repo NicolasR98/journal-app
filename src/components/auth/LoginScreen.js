@@ -1,9 +1,11 @@
 import React from "react"
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Link } from "react-router-dom";
+import isEmail from "validator/lib/isEmail";
 
 import { startGoogleLogin, startLoginEmailPassword } from "../../actions/auth";
+import { uiRemoveError, uiSetError } from "../../actions/ui";
 
 import { useForm } from "../../hooks/useForm";
 
@@ -13,25 +15,51 @@ const initialState = {
 };
 
 export const LoginScreen = () => {
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
+    const { msgError, isLoading } = useSelector(state => state?.ui);
 
     const [formValues, handleInputChange] = useForm(initialState)
     const { email, password } = formValues;
 
     const handleLogin = (e) => {
         e.preventDefault();
-        dispatch(startLoginEmailPassword(email, password));
+        if (isFormValid()) {
+            dispatch(startLoginEmailPassword(email, password));
+        }
     }
 
     const handleGoogleLogin = () => {
         dispatch(startGoogleLogin());
     }
 
+    const isFormValid = () => {
+        if (email.length === 0 || password.length === 0) {
+            dispatch(uiSetError('Fields cannot be empty'))
+            return false;
+        } else if (!isEmail(email)) {
+            dispatch(uiSetError('Email is not valid'));
+            return false;
+        } else if (password.length < 5) {
+            dispatch(uiSetError('Password should be at least 6 characters long'));
+            return false;
+        } else {
+            dispatch(uiRemoveError());
+            return true;
+        };
+    };
+
     return (
         <>
             <h3 className="auth__title">Login</h3>
 
             <form onSubmit={handleLogin}>
+                {
+                    msgError && (
+                        <div className='auth__alert-error'>
+                            {msgError}
+                        </div>
+                    )
+                }
                 <input
                     type="text"
                     placeholder="Email"
@@ -55,6 +83,7 @@ export const LoginScreen = () => {
                 <button
                     className="btn btn-block btn-primary"
                     type="submit"
+                    disabled={isLoading}
                 >
                     Login
                 </button>

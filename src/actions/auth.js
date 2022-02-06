@@ -1,6 +1,7 @@
-import { createUserWithEmailAndPassword, getAuth, signInWithPopup, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
 import { googleAuthProvider } from '../firebase/firebaseConfig';
 import { types } from '../types/types'
+import { uiSetError, uiStartLoading, uiStopLoading } from './ui';
 
 export const login = (uid, displayName) => ({
     type: types.login,
@@ -13,14 +14,27 @@ export const login = (uid, displayName) => ({
 // To handle an async function, the helper must return another function
 export const startLoginEmailPassword = (email, password) => {
     return (dispatch) => {
-        setTimeout(() => {
-            dispatch(login(123, 'nicolas'));
-        }, 3500);
+        dispatch(uiStartLoading());
+
+        const auth = getAuth();
+        signInWithEmailAndPassword(auth, email, password)
+            .then(({ user }) => {
+                //Signed in
+                dispatch(login(user?.uid, user?.displayName));
+                dispatch(uiStopLoading());
+            })
+            .catch(err => {
+                dispatch(uiSetError('Invalid email or password'))
+                dispatch(uiStopLoading());
+                return err;
+            })
     };
 };
 
 export const startRegisterWithEmailPasswordName = (email, password, name) => {
     return (dispatch) => {
+        dispatch(uiStartLoading());
+
         // Get auth and make a petition to firebase to create an user
         const auth = getAuth();
         createUserWithEmailAndPassword(auth, email, password)
@@ -28,11 +42,13 @@ export const startRegisterWithEmailPasswordName = (email, password, name) => {
             // user displayName (async)
             .then(async ({ user }) => {
                 await updateProfile(user, { displayName: name });
-                dispatch(
-                    login(user?.uid, user.displayName)
-                );
+                dispatch(login(user?.uid, user.displayName));
+                dispatch(uiStopLoading());
             })
-            .catch(err => err);
+            .catch(err => {
+                dispatch(uiSetError(`An error ocurred: ${err.code}`));
+                dispatch(uiStopLoading());
+            });
     };
 };
 

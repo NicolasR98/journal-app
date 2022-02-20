@@ -42,10 +42,11 @@ export const LoginScreen = () => {
         } else if (password.length < 5) {
             dispatch(uiSetError('Password should be at least 6 characters long'));
             return false;
-        } else {
+        } else if (msgError) {
             dispatch(uiRemoveError());
-            return true;
         };
+
+        return true;
     };
 
     return (

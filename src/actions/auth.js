@@ -6,6 +6,7 @@ import {
     signOut,
     updateProfile
 } from 'firebase/auth';
+import Swal from 'sweetalert2';
 import { googleAuthProvider } from '../firebase/firebaseConfig';
 import { types } from '../types/types'
 import { uiSetError, uiStartLoading, uiStopLoading } from './ui';
@@ -33,7 +34,7 @@ export const startLoginEmailPassword = (email, password) => {
             .catch(err => {
                 dispatch(uiSetError('Invalid email or password'))
                 dispatch(uiStopLoading());
-                return err;
+                return err
             })
     };
 };
@@ -51,6 +52,7 @@ export const startRegisterWithEmailPasswordName = (email, password, name) => {
                 await updateProfile(user, { displayName: name });
                 dispatch(login(user?.uid, user.displayName));
                 dispatch(uiStopLoading());
+                Swal.fire('Success!', 'User successfully registered', 'success');
             })
             .catch(err => {
                 dispatch(uiSetError(`An error ocurred: ${err.code}`));

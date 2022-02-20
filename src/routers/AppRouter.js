@@ -8,6 +8,8 @@ import { login } from '../actions/auth';
 import { AuthRouter } from './AuthRouter';
 
 import { JournalScreen } from '../components/journal/JournalScreen';
+import { PublicRoute } from './PublicRoute';
+import { PrivateRoute } from './PrivateRoute';
 
 export const AppRouter = () => {
     const dispatch = useDispatch();
@@ -18,10 +20,8 @@ export const AppRouter = () => {
     useEffect(() => {
         const auth = getAuth();
         onAuthStateChanged(auth, (user) => {
-            const { uid = null, displayName = null } = user;
-
-            if (uid && displayName) {
-                dispatch(login(uid, displayName));
+            if (user?.uid && user?.displayName) {
+                dispatch(login(user?.uid, user?.displayName));
                 setIsLoggedIn(true);
             } else {
                 setIsLoggedIn(false);
@@ -39,9 +39,21 @@ export const AppRouter = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<JournalScreen />} />
-                <Route path="/auth" element={<AuthRouter />} />
-                <Route path="*" element={<AuthRouter />} />
+                <Route path="/" element={
+                    <PrivateRoute>
+                        <JournalScreen />
+                    </PrivateRoute>
+                } />
+                <Route path="/auth" element={
+                    <PublicRoute>
+                        <AuthRouter />
+                    </PublicRoute>
+                } />
+                <Route path="*" element={
+                    <PublicRoute>
+                        <AuthRouter />
+                    </PublicRoute>
+                } />
             </Routes>
         </BrowserRouter>
     );

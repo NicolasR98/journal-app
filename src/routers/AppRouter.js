@@ -40,17 +40,17 @@ export const AppRouter = () => {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={
-                    <PrivateRoute>
+                    <PrivateRoute isAuthenticated={isLoggedIn}>
                         <JournalScreen />
                     </PrivateRoute>
                 } />
                 <Route path="/auth" element={
-                    <PublicRoute>
+                    <PublicRoute isAuthenticated={isLoggedIn}>
                         <AuthRouter />
                     </PublicRoute>
                 } />
                 <Route path="*" element={
-                    <PublicRoute>
+                    <PublicRoute isAuthenticated={isLoggedIn}>
                         <AuthRouter />
                     </PublicRoute>
                 } />

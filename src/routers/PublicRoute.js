@@ -1,12 +1,10 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 
 
-export const PublicRoute = ({ children }) => {
-    const { uid } = useSelector(state => state?.auth);
+export const PublicRoute = ({ children, isAuthenticated }) => {
 
-    return uid
+    return isAuthenticated
         ? <Navigate to='/' />
         : children
 };

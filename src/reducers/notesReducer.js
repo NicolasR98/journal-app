@@ -15,15 +15,14 @@ export const notesReducer = (state = initialState, action) => {
                 },
             };
 
+        case types.notesLoad:
+            console.log(action.payload);
+            return {
+                ...state,
+                notes: [...action.payload],
+            };
+
         default:
             return state;
     };
 };
-
-export const activeNote = (id, note) => ({
-    type: types.notesActive,
-    payload: {
-        id,
-        ...note,
-    }
-});

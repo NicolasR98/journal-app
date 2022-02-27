@@ -9,6 +9,7 @@ import {
 import Swal from 'sweetalert2';
 import { googleAuthProvider } from '../firebase/firebaseConfig';
 import { types } from '../types/types'
+import { logoutCleanNotes } from './notes';
 import { uiSetError, uiStartLoading, uiStopLoading } from './ui';
 
 export const login = (uid, displayName) => ({
@@ -78,7 +79,8 @@ export const startLogout = () => {
     return async (dispatch) => {
         const auth = getAuth();
         await signOut(auth);
-        dispatch(logout())
+        dispatch(logout());
+        dispatch(logoutCleanNotes());
     };
 };
 

@@ -11,7 +11,6 @@ export const fileUpload = async (file) => {
             method: 'POST',
             body: formData,
         });
-
         if (resp.ok) {
             const cloudResp = await resp.json();
             return cloudResp.secure_url;

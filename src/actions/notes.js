@@ -15,10 +15,14 @@ export const startNewNote = () => {
             date: new Date().getTime(),
         };
 
-        const { uid } = getState().auth;
-        const docRef = await addDoc(collection(db, `${uid}`, 'journal/notes'), newNote);
-        dispatch(activeNote(docRef?.id, newNote));
-        dispatch(addNewNote(docRef.id, newNote));
+        try {
+            const { uid } = getState().auth;
+            const docRef = await addDoc(collection(db, `${uid}`, 'journal/notes'), newNote);
+            dispatch(activeNote(docRef?.id, newNote));
+            dispatch(addNewNote(docRef.id, newNote));
+        } catch (error) {
+            console.error(error);
+        };
     };
 };
 

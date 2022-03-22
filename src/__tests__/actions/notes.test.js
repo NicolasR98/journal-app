@@ -1,28 +1,41 @@
 /**
 * @jest-environment node
 */
-
-import { deleteDoc, disableNetwork, doc } from 'firebase/firestore';
+import { deleteDoc, disableNetwork, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
-import { startLoadingNotes, startNewNote, startSaveNote } from '../../actions/notes';
+import { writeFileSync, readFileSync, unlinkSync } from 'fs';
+
+import { startDelete, startLoadingNotes, startNewNote, startSaveNote, startUpload } from '../../actions/notes';
 import { types } from '../../types/types';
+import { fileUpload } from '../../helpers/fileUpload';
+
+jest.mock('../../helpers/fileUpload', () => ({
+    fileUpload: jest.fn()
+}));
 
 const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
+const noteIdFromDB = '8cxhrf4J4VR5D042OXY1';
+const noteIdFromDBImageUpload = 'Q7C0ctOr8e6ZbOuW5F3A';
 const uid = 'TESTING_UID';
+const urlMock = 'https://hello-world.com';
 const initialState = {
     auth: {
         uid,
     },
+    notes: {
+        active: {
+            id: noteIdFromDBImageUpload,
+            title: 'initial title',
+            body: 'initial body',
+        },
+    },
 };
-
-let store = mockStore(initialState);
-
 const payloadMock = {
     id: expect.any(String),
     title: '',
@@ -30,10 +43,11 @@ const payloadMock = {
     date: expect.any(Number),
 };
 
-const noteIdFromDB = '8cxhrf4J4VR5D042OXY1';
+let store = mockStore(initialState);
 
 describe('Tests on notes-actions', () => {
     afterAll(() => {
+        // Prevent memory leak
         disableNetwork(db);
     });
     beforeEach(() => {
@@ -105,5 +119,48 @@ describe('Tests on notes-actions', () => {
         const [actionSaveNote] = store.getActions();
 
         expect(actionSaveNote).toEqual(expected);
+    });
+    test('startDeleting => should delete a note', async () => {
+        const noteMock = {
+            title: expect.any(String),
+            body: expect.any(String),
+            date: expect.any(Number),
+        };
+
+        // Create new note and upload it in Firestore
+        await store.dispatch(startNewNote());
+        const [, actionActiveNote] = store.getActions();
+
+        // Check that the recently created note exists in firestore and get the id
+        const docId = actionActiveNote.payload.id;
+        const noteRef = doc(db, `${uid}/journal/notes/${docId}`);
+        const docRefBeforeDelete = await getDoc(noteRef);
+
+        // Delete the note
+        await store.dispatch(startDelete(docId));
+
+        // Check that does not exist anymore
+        const docRefAfterDelete = await getDoc(noteRef);
+
+        expect(docRefBeforeDelete.data()).toEqual(noteMock);
+        expect(docRefAfterDelete.data()).toBeUndefined();
+    });
+
+    test('startUpload => should update the url of the entry', async () => {
+        // Get ref of note on Firestore
+        const noteRef = doc(db, `${uid}/journal/notes/${noteIdFromDBImageUpload}`);
+        const { url } = await (await getDoc(noteRef)).data();
+
+        // Write and read a fake file for passing it as a param, with Node
+        fileUpload.mockReturnValue(urlMock);
+        writeFileSync('picture.jpg', '');
+        const file = readFileSync('picture.jpg');
+
+        await store.dispatch(startUpload(file));
+
+        expect(url).toBe(urlMock);
+
+        // Delete fake file
+        unlinkSync('picture.jpg');
     });
 });

@@ -20,13 +20,17 @@ export const login = (uid, displayName) => ({
     }
 });
 
+export const logout = () => ({
+    type: types.logout,
+});
+
 // To handle an async function, the helper must return another function
 export const startLoginEmailPassword = (email, password) => {
     return (dispatch) => {
         dispatch(uiStartLoading());
 
         const auth = getAuth();
-        signInWithEmailAndPassword(auth, email, password)
+        return signInWithEmailAndPassword(auth, email, password)
             .then(({ user }) => {
                 //Signed in
                 dispatch(login(user?.uid, user?.displayName));
@@ -83,7 +87,3 @@ export const startLogout = () => {
         dispatch(logoutCleanNotes());
     };
 };
-
-export const logout = () => ({
-    type: types.logout,
-});

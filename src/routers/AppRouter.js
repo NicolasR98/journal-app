@@ -22,7 +22,7 @@ export const AppRouter = () => {
     useEffect(() => {
         const auth = getAuth();
         onAuthStateChanged(auth, async (user) => {
-            if (user?.uid && user?.displayName) {
+            if (user?.uid) {
                 dispatch(login(user.uid, user.displayName));
                 setIsLoggedIn(true);
 

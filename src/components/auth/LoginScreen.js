@@ -10,8 +10,8 @@ import { uiRemoveError, uiSetError } from "../../actions/ui";
 import { useForm } from "../../hooks/useForm";
 
 const initialState = {
-    email: 'example@mail.com',
-    password: '12345',
+    email: '',
+    password: '',
 };
 
 export const LoginScreen = () => {
